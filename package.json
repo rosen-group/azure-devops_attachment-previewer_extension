@@ -1,0 +1,80 @@
+{
+  "name": "rosen-group.azure-devops.attachment-previewer",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": [
+    "extensions",
+    "Azure DevOps",
+    "Visual Studio Team Services"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "scripts": {
+    "clean": "rimraf ./dist",
+    "compile": "npm run clean && npm run test && webpack --mode production",
+    "compile:dev": "npm run clean && npm run test && webpack --mode development",
+    "build": "npm run compile",
+    "build:dev": "npm run compile:dev && npm run postbuild",
+    "postbuild": "npm run package-extension -- --rev-version",
+    "package-extension": "tfx extension create --manifest-globs azure-devops-extension.json src/Modules/**/*.json",
+    "publish-extension": "tfx extension publish --manifest-globs azure-devops-extension.json src/Modules/**/*.json",
+    "test": "cross-env TEST_REPORT_FILENAME=test-results.xml jest --verbose"
+  },
+  "dependencies": {
+    "azure-devops-extension-api": "1.157.0",
+    "azure-devops-extension-sdk": "2.0.11",
+    "azure-devops-ui": "2.164.2",
+    "react": "16.13.1",
+    "react-dom": "16.13.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "5.16.5",
+    "@testing-library/react": "10.4.9",
+    "@types/jest": "26.0.24",
+    "@types/react": "16.8.25",
+    "@types/react-dom": "16.8.5",
+    "copy-webpack-plugin": "7.0.0",
+    "cross-env": "7.0.3",
+    "css-loader": "6.7.1",
+    "jest": "26.6.3",
+    "jest-junit-reporter": "1.1.0",
+    "node-sass": "7.0.3",
+    "rimraf": "2.6.3",
+    "sass-loader": "13.0.2",
+    "style-loader": "3.3.1",
+    "tfx-cli": "0.11.0",
+    "ts-jest": "26.5.6",
+    "ts-loader": "5.2.2",
+    "typescript": "3.9.10",
+    "webpack": "5.74.0",
+    "webpack-cli": "4.10.0"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.(js|ts|tsx|jsx)$": "ts-jest"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(react-native|azure-devops-ui|azure-devops-extension-sdk)/)"
+    ],
+    "moduleNameMapper": {
+      "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/__mocks__/fileMock.js",
+      "\\.(css|less|scss)$": "<rootDir>/src/__mocks__/styleMock.js"
+    },
+    "preset": "ts-jest/presets/js-with-babel",
+    "testResultsProcessor": "./node_modules/jest-junit-reporter",
+    "collectCoverage": true,
+    "coverageReporters": [
+      "json",
+      "html",
+      "cobertura"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "tsconfig.test.json"
+      }
+    }
+  }
+}

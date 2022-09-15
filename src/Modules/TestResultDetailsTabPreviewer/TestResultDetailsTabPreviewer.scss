@@ -1,0 +1,49 @@
+@import "node_modules/azure-devops-ui/Core/_platformCommon.scss";
+
+.test-result-details-tab-previewer-tab {
+    padding-top: 12px;
+
+    // the centered loading spinner
+    .loading {
+        align-self: center;
+        margin: auto;
+    }
+
+    // during load disable click events of attachment items and grey the buttons
+    // out
+    .attachments-disable {
+        pointer-events: none;
+
+        .bolt-list-cell {
+            background: rgba(0, 0, 0, .25);
+        }
+    }
+
+    // the attachment item from the attachments list
+    .attachment-item {
+        margin: 7px;
+    }
+
+    // the currently selected attachment
+    .attachment {
+        width: 100%;
+        height: 100%;
+
+        display: flex;
+
+        padding: 0 0 12px 12px;
+
+        // the card for the preview, needs this in order for the IFrame to have
+        // its full height
+        .bolt-card {
+            width: 100%;
+            height: 100%;
+        }
+
+        // the attachment preview
+        .iframe {
+            width: 100%;
+            height: 100%;
+        }
+    }
+}
