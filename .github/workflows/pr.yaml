@@ -1,0 +1,27 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: pr
+
+on: pull_request
+
+jobs:
+
+  test:
+    name: test
+    runs-on: ubuntu-20.04
+
+    steps:
+
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Use Node.JS 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Run Tests
+      run: npm run test
