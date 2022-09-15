@@ -1,8 +1,6 @@
 
 # attachment-previewer
 
-[[_TOC_]]
-
 ## Overview
 
 A Azure DevOps extension for previewing a number of files directly inside of
