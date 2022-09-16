@@ -156,7 +156,7 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         // whenever no attachments are available
         if (!this.state.attachments || this.state.attachments.length === 0) {
             return (
-                <Page className="test-result-details-tab-previewer-tab flex-grow flex-row">
+                <Page className="test-result-details-tab-previewer-tab flex-grow flex-row justify-center">
                     <ZeroData
                         primaryText="No attachments"
                         secondaryText={
