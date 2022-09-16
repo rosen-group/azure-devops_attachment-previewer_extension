@@ -8,7 +8,7 @@ import React from "react";
 import TestResultDetailsTabPreviewerComponent from "../../Modules/TestResultDetailsTabPreviewer/TestResultDetailsTabPreviewer";
 
 import { mockGetProject, mockGetSubResultID } from "../../__mocks__/azure-devops-extension-sdk";
-import { mockGetTestResultAttachments, mockGetTestResultAttachmentContent } from "../../__mocks__/azure-devops-extension-api/TestResults";
+import { mockGetTestResultAttachments, mockGetTestResultAttachmentContent, mockGetTestSubResultAttachments, mockGetTestSubResultAttachmentContent } from "../../__mocks__/azure-devops-extension-api/TestResults";
 
 // related mocks for Azure DevOps are loaded automatically (implementations /src/__mocks__)
 
@@ -390,6 +390,35 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Assert
         expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
         expect(loading).toBeDefined();
+    });
+
+    test("should select attachment of test with attempt", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetSubResultID.mockReturnValue(1);
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
     });
 
     test("should set restriction for attachment content iframe by default", async () => {

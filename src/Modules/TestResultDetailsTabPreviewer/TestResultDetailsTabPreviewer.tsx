@@ -280,7 +280,12 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
 
         const testResultClient = AzureDevOpsUtilities.getTestResultRestClient();
 
-        const content = await testResultClient.getTestResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId);;
+        // if the attempt ID is not `-1` then the attempt attachments are
+        // fetched from the run itself
+        const content = configuration.subResultId !== -1
+            ? await testResultClient.getTestSubResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId, configuration.resultId)
+            : await testResultClient.getTestResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId);
+
         const blob = new Blob([content]);
 
         // the title is the file name it can be different types, such as a PDF
