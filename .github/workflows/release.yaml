@@ -39,12 +39,14 @@ jobs:
       run: |
         TAG_VERSION=${{ github.event.inputs.tag_version }}
         echo "TAG_VERSION=$TAG_VERSION" >> $GITHUB_ENV
+        echo "PRERELEASE=--prerelease" >> $GITHUB_ENV
       if: github.event_name == 'workflow_dispatch'
 
     - name: Set Tag Name for Tag Pushes
       run: |
         TAG_VERSION=${{ github.ref }}
         echo "TAG_VERSION=${TAG_VERSION#refs/tags/}" >> $GITHUB_ENV
+        echo "PRERELEASE=" >> $GITHUB_ENV
       if: github.event_name == 'push'
 
     - name: Generate Changelog Notes
@@ -67,4 +69,4 @@ jobs:
       run: npm run package-extension
 
     - name: Publish Release
-      run: gh release create $TAG_VERSION --title $TAG_VERSION --notes-file $RUNNER_TEMP/notes.md --target $GITHUB_SHA *.vsix
+      run: gh release create $TAG_VERSION $PRERELEASE --title $TAG_VERSION --notes-file $RUNNER_TEMP/notes.md --target $GITHUB_SHA *.vsix
