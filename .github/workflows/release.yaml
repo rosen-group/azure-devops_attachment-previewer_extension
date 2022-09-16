@@ -51,8 +51,8 @@ jobs:
 
     - name: Generate Changelog Notes
       run: |
-        VERSION=${TAG_VERSION#"v"}
-        VERSION_ANCHOR=`echo $VERSION | sed --regexp-extended 's/\.//g'`
+        export VERSION=${TAG_VERSION#"v"}
+        export VERSION_ANCHOR=`echo $VERSION | sed --regexp-extended 's/\.//g'`
 
         envsubst < $GITHUB_WORKSPACE/.github/workflows/release-notes.md > $RUNNER_TEMP/notes.md
 
