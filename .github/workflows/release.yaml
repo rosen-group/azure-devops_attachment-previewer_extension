@@ -50,7 +50,11 @@ jobs:
       if: github.event_name == 'push'
 
     - name: Generate Changelog Notes
-      run: envsubst < $GITHUB_WORKSPACE/.github/workflows/release-notes.md > $RUNNER_TEMP/notes.md
+      run: |
+        VERSION=${TAG_VERSION#"v"}
+        VERSION_ANCHOR=`echo $VERSION | sed --regexp-extended 's/\.//g'`
+
+        envsubst < $GITHUB_WORKSPACE/.github/workflows/release-notes.md > $RUNNER_TEMP/notes.md
 
     - name: Install Dependencies
       run: npm ci
