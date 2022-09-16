@@ -1,17 +1,22 @@
 {
   "name": "rosen-group.azure-devops.attachment-previewer",
-  "version": "1.0.0",
   "description": "",
+
+  "version": "0.0.0",
+
   "keywords": [
     "extensions",
     "Azure DevOps",
     "Visual Studio Team Services"
   ],
+
   "license": "MIT",
+
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/rosen-group/azure-devops_attachment-previewer_extension"
   },
+
   "scripts": {
     "clean": "rimraf ./dist",
     "compile": "npm run clean && npm run test && webpack --mode production",
@@ -23,6 +28,7 @@
     "publish-extension": "tfx extension publish --manifest-globs azure-devops-extension.json src/Modules/**/*.json",
     "test": "cross-env TEST_REPORT_FILENAME=test-results.xml jest --verbose"
   },
+
   "dependencies": {
     "azure-devops-extension-api": "1.157.0",
     "azure-devops-extension-sdk": "2.0.11",
@@ -30,6 +36,7 @@
     "react": "16.13.1",
     "react-dom": "16.13.1"
   },
+
   "devDependencies": {
     "@testing-library/jest-dom": "5.16.5",
     "@testing-library/react": "10.4.9",
@@ -52,6 +59,7 @@
     "webpack": "5.74.0",
     "webpack-cli": "4.10.0"
   },
+
   "jest": {
     "transform": {
       "^.+\\.(js|ts|tsx|jsx)$": "ts-jest"

@@ -1,0 +1,63 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_version:
+        description: "Tag Version"
+        required: true
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+
+jobs:
+
+  release:
+    name: release
+    runs-on: ubuntu-20.04
+
+    steps:
+
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Use Node.JS 16.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16.x
+
+    - name: Set Tag Name for Workflow Dispatches
+      run: |
+        TAG_VERSION=${{ github.event.inputs.tag_version }}
+        echo "TAG_VERSION=$TAG_VERSION" >> $GITHUB_ENV
+      if: github.event_name == 'workflow_dispatch'
+
+    - name: Set Tag Name for Tag Pushes
+      run: |
+        TAG_VERSION=${{ github.ref }}
+        echo "TAG_VERSION=${TAG_VERSION#refs/tags/}" >> $GITHUB_ENV
+      if: github.event_name == 'push'
+
+    - name: Generate Changelog Notes
+      run: envsubst < $GITHUB_WORKSPACE/.github/workflows/release-notes.md > $RUNNER_TEMP/notes.md
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Set Package Version
+      run: |
+        VERSION=${TAG_VERSION#"v"}
+
+        sed --in-place 's/"0.0.0"/"'"$VERSION"'"/' package.json
+        sed --in-place 's/"0.0.0"/"'"$VERSION"'"/' azure-devops-extension.json
+
+    - name: Build Extension
+      run: npm run compile
+
+    - name: Package Extension
+      run: npm run package-extension
+
+    - name: Publish Release
+      run: gh release create $TAG_VERSION --title $TAG_VERSION --notes-file $RUNNER_TMP/notes.md --target $GITHUB_SHA *.vsix
