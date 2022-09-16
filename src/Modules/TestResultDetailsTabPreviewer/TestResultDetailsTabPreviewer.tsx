@@ -174,7 +174,7 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         // the attachments listing and preview itself
         return (
             <Page className="test-result-details-tab-previewer-tab flex-grow flex-row">
-                <div className={"attachments " + (this.state.lock ? "attachments-disable" : "")}>
+                <div className={"attachments flex-row " + (this.state.lock ? "attachments-disable" : "")}>
                     <ScrollableList
                         itemProvider={this.state.attachments}
                         renderRow={this.renderAttachmentRow}
