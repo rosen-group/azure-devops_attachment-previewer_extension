@@ -283,7 +283,7 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         // if the attempt ID is not `-1` then the attempt attachments are
         // fetched from the run itself
         const content = configuration.subResultId !== -1
-            ? await testResultClient.getTestSubResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId, configuration.resultId)
+            ? await testResultClient.getTestSubResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId, configuration.subResultId)
             : await testResultClient.getTestResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId);
 
         const blob = new Blob([content]);
