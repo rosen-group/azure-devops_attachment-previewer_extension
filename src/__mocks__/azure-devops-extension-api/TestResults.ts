@@ -3,10 +3,12 @@ import { TextEncoder } from "util";
 import { IVssRestClientOptions } from "azure-devops-extension-api/Common";
 
 export const mockGetTestResultRestClientOptions = jest.fn(); // REST client options for TestResultsRestClient
+
 export const mockGetTestResultAttachments = jest.fn().mockResolvedValue([]); // test result attachments
-export const mockGetTestSubResultAttachments = jest.fn().mockResolvedValue([]); // test result attachments
-export const mockGetTestResultAttachmentContent = jest.fn().mockResolvedValue(new TextEncoder().encode("")); // test result attachment content for sub results
-export const mockGetTestSubResultAttachmentContent = jest.fn().mockResolvedValue(new TextEncoder().encode("")); // test result attachment content for sub results
+export const mockGetTestSubResultAttachments = jest.fn().mockResolvedValue([]); // test result attachments for sub tests with results
+
+export const mockGetTestResultAttachmentContent = jest.fn().mockResolvedValue(new TextEncoder().encode("")); // test result attachment content
+export const mockGetTestSubResultAttachmentContent = jest.fn().mockResolvedValue(new TextEncoder().encode("")); // test result attachment content for tests with sub results
 
 /**
  * Mocking the test result REST client.
