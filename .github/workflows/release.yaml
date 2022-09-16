@@ -67,4 +67,4 @@ jobs:
       run: npm run package-extension
 
     - name: Publish Release
-      run: gh release create $TAG_VERSION --title $TAG_VERSION --notes-file $RUNNER_TMP/notes.md --target $GITHUB_SHA *.vsix
+      run: gh release create $TAG_VERSION --title $TAG_VERSION --notes-file $RUNNER_TEMP/notes.md --target $GITHUB_SHA *.vsix
