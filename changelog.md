@@ -1,6 +1,12 @@
 
 # Changelog
 
+## 1.0.2
+
+```diff
+- FIXED - Incorrect sub result ID being used for content fetch
+```
+
 ## 1.0.1
 
 ```diff
