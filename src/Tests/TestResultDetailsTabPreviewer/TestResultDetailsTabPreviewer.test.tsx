@@ -7,8 +7,8 @@ import React from "react";
 
 import TestResultDetailsTabPreviewerComponent from "../../Modules/TestResultDetailsTabPreviewer/TestResultDetailsTabPreviewer";
 
-import { mockGetProject, mockGetSubResultID } from "../../__mocks__/azure-devops-extension-sdk";
-import { mockGetTestResultAttachments, mockGetTestResultAttachmentContent, mockGetTestSubResultAttachments, mockGetTestSubResultAttachmentContent } from "../../__mocks__/azure-devops-extension-api/TestResults";
+import { mockGetProject, mockGetSubResultID, mockGetRunID, mockGetResultID } from "../../__mocks__/azure-devops-extension-sdk";
+import { mockGetTestResultAttachments, mockGetTestResultAttachmentContent, mockGetTestSubResultAttachments, mockGetTestSubResultAttachmentContent, mockGetTestResultById } from "../../__mocks__/azure-devops-extension-api/TestResults";
 
 // related mocks for Azure DevOps are loaded automatically (implementations /src/__mocks__)
 
@@ -20,7 +20,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
     // warnings are ignored, these might come from the component itself
     const warn = console.warn.bind(console.warn);
     beforeAll(() => {
-        console.warn = () => {};
+        console.warn = () => { };
     });
     afterAll(() => {
         console.warn = warn;
@@ -39,8 +39,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
     test("should show no available attachments", async () => {
         // Arrange
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultAttachments.mockResolvedValue([]);
 
         // Act
@@ -52,10 +55,65 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByText(/no attachments/i)).toBeDefined();
     });
 
+    test("should show no available attachments for invalid run", async () => {
+        // Arrange
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(null);
+        mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getByText(/no attachments/i)).toBeDefined();
+    });
+
+    test("should show list attachments of last sub result", async () => {
+        // Arrange
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({
+            subResults: [
+                {
+                    id: 1001,
+                },
+                {
+                    id: 1002,
+                }
+            ]
+        });
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment2",
+                fileName: "filename2",
+            }
+        ]);
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(mockGetTestSubResultAttachments).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Number), 1002);
+        expect(screen.getByText(/filename2/i)).toBeDefined();
+    });
+
     test("should show no selected attachment", async () => {
         // Arrange
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -74,8 +132,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
     test("should show listed attachment with no comment", async () => {
         // Arrange
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -95,8 +157,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
     test("should show listed attachments with no comment", async () => {
         // Arrange
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -121,8 +187,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
     test("should show listed attachment with comment", async () => {
         // Arrange
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -143,8 +213,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
     test("should show listed attachments with comment", async () => {
         // Arrange
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -172,8 +246,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
     test("should show listed attachments with mixed comment", async () => {
         // Arrange
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -202,8 +280,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -231,8 +313,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url2/");
 
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -264,8 +350,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -295,8 +385,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
             .mockReturnValueOnce("https://url1/")
             .mockReturnValueOnce("https://url2/");
 
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -330,8 +424,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValueOnce("https://url1/");
 
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -360,8 +458,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
             .mockReturnValueOnce("https://url1/")
             .mockReturnValueOnce("https://url2/");
 
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -396,8 +498,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(-1);
+
         mockGetProject.mockResolvedValue({ name: "project" });
-        mockGetSubResultID.mockReturnValue(1);
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -425,8 +531,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -454,8 +564,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
@@ -483,8 +597,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
-        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
         mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
         mockGetTestResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",

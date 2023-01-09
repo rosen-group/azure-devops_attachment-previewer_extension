@@ -12,7 +12,7 @@ import { Spinner, SpinnerSize } from "azure-devops-ui/Spinner";
 import { ZeroData } from "azure-devops-ui/ZeroData";
 
 import { IProjectPageService, CommonServiceIds } from "azure-devops-extension-api/Common";
-import { TestAttachment } from "azure-devops-extension-api/Test/Test";
+import { TestAttachment, ResultDetails } from "azure-devops-extension-api/Test/Test";
 
 import { showRootComponent } from "../../Common";
 import { AzureDevOpsUtilities } from "./AzureDevOpsUtilities";
@@ -156,7 +156,7 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         // whenever no attachments are available
         if (!this.state.attachments || this.state.attachments.length === 0) {
             return (
-                <Page className="test-result-details-tab-previewer-tab flex-grow flex-row justify-center">
+                <Page className="test-result-details-tab-previewer-tab flex-grow flex-column justify-center">
                     <ZeroData
                         primaryText="No attachments"
                         secondaryText={
@@ -247,12 +247,28 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
              return;
         }
 
+        // show no attachments for test run sections that aren't actually run
+        // results
+        if (!configuration.resultId) {
+            this.setState({ loaded: true, attachments: new ArrayItemProvider([]) });
+
+            return;
+        }
+
         const testResultClient = AzureDevOpsUtilities.getTestResultRestClient();
+
+        const results = await testResultClient.getTestResultById(project.name, configuration.runId, configuration.resultId, ResultDetails.SubResults);
+
+        // this ensures that when a run exists with sub results that the
+        // attachments of the last attempt is shown
+        const subResultId = results.subResults && results.subResults.length > 0
+            ? results.subResults.reverse()[0].id
+            : configuration.subResultId;
 
         // if the attempt ID is not `-1` then the attempt attachments are
         // fetched from the run itself
-        const attachments = configuration.subResultId !== -1
-            ? await testResultClient.getTestSubResultAttachments(project.name, configuration.runId, configuration.resultId, configuration.subResultId)
+        const attachments = subResultId !== -1
+            ? await testResultClient.getTestSubResultAttachments(project.name, configuration.runId, configuration.resultId, subResultId)
             : await testResultClient.getTestResultAttachments(project.name, configuration.runId, configuration.resultId);
 
         const provider = new ArrayItemProvider(attachments);
