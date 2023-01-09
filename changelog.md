@@ -1,6 +1,12 @@
 
 # Changelog
 
+## 1.0.3
+
+```diff
+- FIXED - Incorrect attachments being listed for parent test run entries
+```
+
 ## 1.0.2
 
 ```diff
