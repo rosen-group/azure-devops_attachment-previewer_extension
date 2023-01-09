@@ -4,6 +4,8 @@ import { IVssRestClientOptions } from "azure-devops-extension-api/Common";
 
 export const mockGetTestResultRestClientOptions = jest.fn(); // REST client options for TestResultsRestClient
 
+export const mockGetTestResultById = jest.fn().mockResolvedValue({}); // test result
+
 export const mockGetTestResultAttachments = jest.fn().mockResolvedValue([]); // test result attachments
 export const mockGetTestSubResultAttachments = jest.fn().mockResolvedValue([]); // test result attachments for sub tests with results
 
@@ -19,12 +21,16 @@ export class TestResultsRestClient {
       mockGetTestResultRestClientOptions.mockReturnValue(options);
    }
 
+   public getTestResultById(project: string, run: any, result: any, details: any) {
+      return mockGetTestResultById();
+   }
+
    public getTestResultAttachments(project: string, run: any, result: any) {
       return mockGetTestResultAttachments();
    }
 
-   public getTestSubResultAttachments(project: string, run: any, result: any) {
-      return mockGetTestSubResultAttachments();
+   public getTestSubResultAttachments(project: string, run: any, result: any, sub: any) {
+      return mockGetTestSubResultAttachments(project, run, result, sub);
    }
 
    public getTestResultAttachmentContent(project: string, run: any, result: any, attachment: any) {
