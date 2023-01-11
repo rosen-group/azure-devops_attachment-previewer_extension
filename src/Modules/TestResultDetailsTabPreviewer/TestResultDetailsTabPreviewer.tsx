@@ -11,11 +11,12 @@ import { ScrollableList, IListItemDetails, ListSelection, ListItem } from "azure
 import { Spinner, SpinnerSize } from "azure-devops-ui/Spinner";
 import { ZeroData } from "azure-devops-ui/ZeroData";
 
-import { IProjectPageService, CommonServiceIds } from "azure-devops-extension-api/Common";
+import { IProjectPageService, CommonServiceIds, IProjectInfo } from "azure-devops-extension-api/Common";
 import { TestAttachment, ResultDetails } from "azure-devops-extension-api/Test/Test";
 
 import { showRootComponent } from "../../Common";
 import { AzureDevOpsUtilities } from "./AzureDevOpsUtilities";
+import { TestResultsRestClient } from "azure-devops-extension-api/TestResults";
 
 /**
  * The interface containg the information of the currently selected information
@@ -188,24 +189,24 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
                         this.state.selected ?
                             <Card className="bolt-card-white" titleProps={{ text: this.state.selected.title, ariaLevel: 3 }}>
                                 {this.state.selected.sandbox === null // only disable the sandbox if specifically configured
-                                     ? <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url}></iframe>
-                                     : <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url} sandbox={this.state.selected.sandbox}></iframe>
+                                    ? <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url}></iframe>
+                                    : <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url} sandbox={this.state.selected.sandbox}></iframe>
                                 }
                             </Card>
-                                :
+                            :
                             <ZeroData
-                              primaryText="No attachment selected"
-                              secondaryText={
-                                  <span>
-                                      Please selected a attachment to preview.
+                                primaryText="No attachment selected"
+                                secondaryText={
+                                    <span>
+                                        Please selected a attachment to preview.
                                   </span>
-                              }
-                              imagePath=""
-                              imageAltText="" />
+                                }
+                                imagePath=""
+                                imageAltText="" />
                         :
-                    <div className="loading" data-testid="loading-attachment">
-                        <Spinner className="loading" size={SpinnerSize.large} />
-                    </div>
+                        <div className="loading" data-testid="loading-attachment">
+                            <Spinner className="loading" size={SpinnerSize.large} />
+                        </div>
                     }
                 </div>
             </Page>
@@ -216,9 +217,9 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
      * Renders the row where the attachments are being listed.
      */
     private renderAttachmentRow(index: number,
-                                item: TestAttachment,
-                                details: IListItemDetails<TestAttachment>,
-                                key?: string): JSX.Element {
+        item: TestAttachment,
+        details: IListItemDetails<TestAttachment>,
+        key?: string): JSX.Element {
 
         return (
             <ListItem key={key || "list-item-" + index} index={index} details={details}>
@@ -228,6 +229,28 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
                 </div>
             </ListItem>
         );
+    }
+
+    /**
+     * Gets the run sub result id for the provided configuration, returns
+     * null if invalid.
+     */
+    private async getSubResultId(configuration: { [key: string]: any }, project: IProjectInfo, testResultClient: TestResultsRestClient): Promise<number | null> {
+        // for test run sections that aren't actually run results
+        if (!configuration.resultId) {
+            this.setState({ loaded: true, attachments: new ArrayItemProvider([]) });
+
+            return null;
+        }
+
+        const results = await testResultClient.getTestResultById(project.name, configuration.runId, configuration.resultId, ResultDetails.SubResults);
+        // this ensures that when a run exists with sub results that the
+        // attachments of the last attempt is shown
+        const subResultId = results.subResults && results.subResults.length > 0
+            ? Array.from(results.subResults).reverse()[0].id
+            : configuration.subResultId;
+
+        return subResultId;
     }
 
     /**
@@ -244,26 +267,17 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         if (!project) {
             console.warn("[TestResultDetailsTabPreviewer] invalid project");
 
-             return;
-        }
-
-        // show no attachments for test run sections that aren't actually run
-        // results
-        if (!configuration.resultId) {
-            this.setState({ loaded: true, attachments: new ArrayItemProvider([]) });
-
             return;
         }
 
         const testResultClient = AzureDevOpsUtilities.getTestResultRestClient();
 
-        const results = await testResultClient.getTestResultById(project.name, configuration.runId, configuration.resultId, ResultDetails.SubResults);
+        const subResultId = await this.getSubResultId(configuration, project, testResultClient);
+        if (!subResultId) {
+            this.setState({ loaded: true, attachments: new ArrayItemProvider([]) });
 
-        // this ensures that when a run exists with sub results that the
-        // attachments of the last attempt is shown
-        const subResultId = results.subResults && results.subResults.length > 0
-            ? results.subResults.reverse()[0].id
-            : configuration.subResultId;
+            return;
+        }
 
         // if the attempt ID is not `-1` then the attempt attachments are
         // fetched from the run itself
@@ -291,15 +305,18 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         if (!project) {
             console.warn("[TestResultDetailsTabPreviewer] invalid project");
 
-             return;
+            return;
         }
 
         const testResultClient = AzureDevOpsUtilities.getTestResultRestClient();
 
+        const subResultId = await this.getSubResultId(configuration, project, testResultClient);
+        if (!subResultId) return;
+
         // if the attempt ID is not `-1` then the attempt attachments are
         // fetched from the run itself
-        const content = configuration.subResultId !== -1
-            ? await testResultClient.getTestSubResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId, configuration.subResultId)
+        const content = subResultId !== -1
+            ? await testResultClient.getTestSubResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId, subResultId)
             : await testResultClient.getTestResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId);
 
         const blob = new Blob([content]);

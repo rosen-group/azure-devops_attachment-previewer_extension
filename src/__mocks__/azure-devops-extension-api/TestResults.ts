@@ -37,8 +37,8 @@ export class TestResultsRestClient {
       return mockGetTestResultAttachmentContent();
    }
 
-   public getTestSubResultAttachmentContent(project: string, run: any, result: any, attachment: any) {
-      return mockGetTestSubResultAttachmentContent();
+   public getTestSubResultAttachmentContent(project: string, run: any, result: any, attachment: any, sub: any) {
+      return mockGetTestSubResultAttachmentContent(project, run, result, attachment, sub);
    }
 
 }
