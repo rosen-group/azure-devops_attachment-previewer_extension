@@ -527,6 +527,50 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
     });
 
+    test("should select attachment content of parent test with attempt", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(-1);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({
+            subResults: [
+                {
+                    id: 1001,
+                },
+                {
+                    id: 1002,
+                }
+            ]
+        });
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
+        expect(mockGetTestSubResultAttachments).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Number), 1002);
+        expect(mockGetTestSubResultAttachmentContent).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Number), expect.any(String), 1002);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
+    });
+
     test("should set restriction for attachment content iframe by default", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
