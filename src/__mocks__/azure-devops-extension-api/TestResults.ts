@@ -6,10 +6,7 @@ export const mockGetTestResultRestClientOptions = jest.fn(); // REST client opti
 
 export const mockGetTestResultById = jest.fn().mockResolvedValue({}); // test result
 
-export const mockGetTestResultAttachments = jest.fn().mockResolvedValue([]); // test result attachments
 export const mockGetTestSubResultAttachments = jest.fn().mockResolvedValue([]); // test result attachments for sub tests with results
-
-export const mockGetTestResultAttachmentContent = jest.fn().mockResolvedValue(new TextEncoder().encode("")); // test result attachment content
 export const mockGetTestSubResultAttachmentContent = jest.fn().mockResolvedValue(new TextEncoder().encode("")); // test result attachment content for tests with sub results
 
 /**
@@ -25,16 +22,8 @@ export class TestResultsRestClient {
       return mockGetTestResultById();
    }
 
-   public getTestResultAttachments(project: string, run: any, result: any) {
-      return mockGetTestResultAttachments();
-   }
-
    public getTestSubResultAttachments(project: string, run: any, result: any, sub: any) {
       return mockGetTestSubResultAttachments(project, run, result, sub);
-   }
-
-   public getTestResultAttachmentContent(project: string, run: any, result: any, attachment: any) {
-      return mockGetTestResultAttachmentContent();
    }
 
    public getTestSubResultAttachmentContent(project: string, run: any, result: any, attachment: any, sub: any) {
