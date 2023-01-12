@@ -198,7 +198,7 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
                                 primaryText="No attachment selected"
                                 secondaryText={
                                     <span>
-                                        Please selected a attachment to preview.
+                                        Please select an attachment to preview.
                                   </span>
                                 }
                                 imagePath=""
