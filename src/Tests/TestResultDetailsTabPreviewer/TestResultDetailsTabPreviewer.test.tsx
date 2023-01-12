@@ -8,7 +8,7 @@ import React from "react";
 import TestResultDetailsTabPreviewerComponent from "../../Modules/TestResultDetailsTabPreviewer/TestResultDetailsTabPreviewer";
 
 import { mockGetProject, mockGetSubResultID, mockGetRunID, mockGetResultID } from "../../__mocks__/azure-devops-extension-sdk";
-import { mockGetTestResultAttachments, mockGetTestResultAttachmentContent, mockGetTestSubResultAttachments, mockGetTestSubResultAttachmentContent, mockGetTestResultById } from "../../__mocks__/azure-devops-extension-api/TestResults";
+import { mockGetTestSubResultAttachments, mockGetTestSubResultAttachmentContent, mockGetTestResultById } from "../../__mocks__/azure-devops-extension-api/TestResults";
 
 // related mocks for Azure DevOps are loaded automatically (implementations /src/__mocks__)
 
@@ -41,10 +41,10 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
-        mockGetTestResultAttachments.mockResolvedValue([]);
+        mockGetTestSubResultAttachments.mockResolvedValue([]);
 
         // Act
         render(<TestResultDetailsTabPreviewerComponent />);
@@ -59,7 +59,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(null);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
 
@@ -76,7 +76,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({
@@ -110,11 +110,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
+        mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
                 fileName: "filename",
@@ -134,11 +134,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
+        mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
                 fileName: "filename1",
@@ -159,11 +159,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
+        mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
                 fileName: "filename1",
@@ -189,11 +189,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
+        mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
                 fileName: "filename1",
@@ -215,11 +215,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
+        mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
                 fileName: "filename1",
@@ -248,11 +248,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
+        mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
                 fileName: "filename1",
@@ -282,225 +282,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
-
-        mockGetProject.mockResolvedValue({ name: "project" });
-        mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
-            {
-                id: "attachment1",
-                fileName: "filename1.txt",
-            }
-        ]);
-        mockGetTestResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
-
-        // Act
-        render(<TestResultDetailsTabPreviewerComponent />);
-
-        await waitFor(() => screen.getByText(/filename1/));
-
-        fireEvent.click(screen.getByText(/filename1/i));
-
-        await new Promise((resolve => setTimeout(resolve, 0)));
-
-        // Assert
-        expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
-        expect(screen.getByTestId("iframe")).toBeDefined();
-        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
-    });
-
-    test("should select second attachment", async () => {
-        // Arrange
-        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url2/");
-
-        mockGetRunID.mockReturnValue(1);
-        mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
-
-        mockGetProject.mockResolvedValue({ name: "project" });
-        mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
-            {
-                id: "attachment1",
-                fileName: "filename1.txt",
-            },
-            {
-                id: "attachment2",
-                fileName: "filename2.txt",
-            }
-        ]);
-        mockGetTestResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
-
-        // Act
-        render(<TestResultDetailsTabPreviewerComponent />);
-
-        await waitFor(() => screen.getByText(/filename2/));
-
-        fireEvent.click(screen.getByText(/filename2/i));
-
-        await new Promise((resolve => setTimeout(resolve, 0)));
-
-        // Assert
-        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
-        expect(screen.getByTestId("iframe")).toBeDefined();
-        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url2/");
-    });
-
-    test("should select attachment with unknown type", async () => {
-        // Arrange
-        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
-
-        mockGetRunID.mockReturnValue(1);
-        mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
-
-        mockGetProject.mockResolvedValue({ name: "project" });
-        mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
-            {
-                id: "attachment1",
-                fileName: "filename1.unknown",
-            }
-        ]);
-        mockGetTestResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
-
-        // Act
-        render(<TestResultDetailsTabPreviewerComponent />);
-
-        await waitFor(() => screen.getByText(/filename1/));
-
-        fireEvent.click(screen.getByText(/filename1/i));
-
-        await new Promise((resolve => setTimeout(resolve, 0)));
-
-        // Assert
-        expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
-        expect(screen.getByTestId("iframe")).toBeDefined();
-        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
-    });
-
-    test("should switch selected attachment", async () => {
-        // Arrange
-        global.URL.createObjectURL = jest.fn()
-            .mockReturnValueOnce("https://url1/")
-            .mockReturnValueOnce("https://url2/");
-
-        mockGetRunID.mockReturnValue(1);
-        mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
-
-        mockGetProject.mockResolvedValue({ name: "project" });
-        mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
-            {
-                id: "attachment1",
-                fileName: "filename1.txt",
-            },
-            {
-                id: "attachment2",
-                fileName: "filename2.txt",
-            }
-        ]);
-        mockGetTestResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
-
-        // Act
-        render(<TestResultDetailsTabPreviewerComponent />);
-
-        await waitFor(() => screen.getByText(/filename1/));
-
-        fireEvent.click(screen.getByText(/filename1/i));
-        await new Promise((resolve => setTimeout(resolve, 0)));
-
-        fireEvent.click(screen.getByText(/filename2/i));
-        await new Promise((resolve => setTimeout(resolve, 0)));
-
-        // Assert
-        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
-        expect(screen.getByTestId("iframe")).toBeDefined();
-        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url2/");
-    });
-
-    test("should lock during attachment load", async () => {
-        // Arrange
-        global.URL.createObjectURL = jest.fn().mockReturnValueOnce("https://url1/");
-
-        mockGetRunID.mockReturnValue(1);
-        mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
-
-        mockGetProject.mockResolvedValue({ name: "project" });
-        mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
-            {
-                id: "attachment1",
-                fileName: "filename1.txt",
-            }
-        ]);
-        mockGetTestResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
-
-        // Act
-        render(<TestResultDetailsTabPreviewerComponent />);
-
-        await waitFor(() => screen.getByText(/filename1/));
-
-        fireEvent.click(screen.getByText(/filename1/i));
-        const loading = screen.getByTestId("loading-attachment");
-        await new Promise((resolve => setTimeout(resolve, 0)));
-
-        // Assert
-        expect(loading).toBeDefined();
-        expect(screen.queryByTestId("loading-attachment")).toBeNull();
-    });
-
-    test("should lock during switch of selected attachment", async () => {
-        // Arrange
-        global.URL.createObjectURL = jest.fn()
-            .mockReturnValueOnce("https://url1/")
-            .mockReturnValueOnce("https://url2/");
-
-        mockGetRunID.mockReturnValue(1);
-        mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
-
-        mockGetProject.mockResolvedValue({ name: "project" });
-        mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
-            {
-                id: "attachment1",
-                fileName: "filename1.txt",
-            },
-            {
-                id: "attachment2",
-                fileName: "filename2.txt",
-            }
-        ]);
-        mockGetTestResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
-
-        // Act
-        render(<TestResultDetailsTabPreviewerComponent />);
-
-        await waitFor(() => screen.getByText(/filename1/));
-
-        fireEvent.click(screen.getByText(/filename1/i));
-
-        const loading = screen.getByTestId("loading-attachment");
-        await new Promise((resolve => setTimeout(resolve, 0)));
-
-        fireEvent.click(screen.getByText(/filename2/i));
-        await new Promise((resolve => setTimeout(resolve, 0)));
-
-        // Assert
-        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
-        expect(loading).toBeDefined();
-    });
-
-    test("should select attachment of test with attempt", async () => {
-        // Arrange
-        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
-
-        mockGetRunID.mockReturnValue(1);
-        mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
@@ -527,13 +309,278 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
     });
 
+    test("should select second attachment", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url2/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+            },
+            {
+                id: "attachment2",
+                fileName: "filename2.txt",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename2/));
+
+        fireEvent.click(screen.getByText(/filename2/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url2/");
+    });
+
+    test("should select attachment with unknown type", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.unknown",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
+    });
+
+    test("should switch selected attachment", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn()
+            .mockReturnValueOnce("https://url1/")
+            .mockReturnValueOnce("https://url2/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+            },
+            {
+                id: "attachment2",
+                fileName: "filename2.txt",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        fireEvent.click(screen.getByText(/filename2/i));
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url2/");
+    });
+
+    test("should lock during attachment load", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValueOnce("https://url1/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+        const loading = screen.getByTestId("loading-attachment");
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(loading).toBeDefined();
+        expect(screen.queryByTestId("loading-attachment")).toBeNull();
+    });
+
+    test("should lock during switch of selected attachment", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn()
+            .mockReturnValueOnce("https://url1/")
+            .mockReturnValueOnce("https://url2/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+            },
+            {
+                id: "attachment2",
+                fileName: "filename2.txt",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+
+        const loading = screen.getByTestId("loading-attachment");
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        fireEvent.click(screen.getByText(/filename2/i));
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
+        expect(loading).toBeDefined();
+    });
+
+    test("should select attachment of test with attempt", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(1001);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
+        expect(mockGetTestSubResultAttachments).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Number), 1001);
+        expect(mockGetTestSubResultAttachmentContent).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Number), expect.any(String), 1001);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
+    });
+
+    test("should select attachment of test with multiple attempts", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(1001);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({
+            subResults: [
+                {
+                    id: 1001,
+                },
+                {
+                    id: 1002,
+                }
+            ]
+        });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
+        expect(mockGetTestSubResultAttachments).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Number), 1001);
+        expect(mockGetTestSubResultAttachmentContent).toHaveBeenCalledWith(expect.any(String), expect.any(Number), expect.any(Number), expect.any(String), 1001);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
+    });
+
     test("should select attachment content of parent test with attempt", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({
@@ -577,17 +624,17 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
+        mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
                 fileName: "filename1.html",
             }
         ]);
-        mockGetTestResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
 
         // Act
         render(<TestResultDetailsTabPreviewerComponent />);
@@ -610,17 +657,17 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
+        mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
                 fileName: "filename1.pdf",
             }
         ]);
-        mockGetTestResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
 
         // Act
         render(<TestResultDetailsTabPreviewerComponent />);
@@ -643,17 +690,17 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
-        mockGetSubResultID.mockReturnValue(-1);
+        mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
         mockGetTestResultById.mockResolvedValue({});
-        mockGetTestResultAttachments.mockResolvedValue([
+        mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
                 fileName: "filename1.mp4",
             }
         ]);
-        mockGetTestResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
 
         // Act
         render(<TestResultDetailsTabPreviewerComponent />);
