@@ -141,7 +141,6 @@ steps:
     testResultsFormat: NUnit
     testResultsFiles: testresult.xml
     searchFolder: '$(Agent.TempDirectory)/TestResults'
-    testRunTitle: SHFK
   continueOnError: true
 ```
 
