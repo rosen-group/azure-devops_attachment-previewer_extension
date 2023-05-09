@@ -4,7 +4,7 @@ import { CommonServiceIds } from "azure-devops-extension-api/Common";
  * Mocked init function to return resolve.
  */
 export function init() {
-    return new Promise((resolve, _) => resolve());
+    return new Promise<void>((resolve, _) => resolve());
 }
 
 /**
