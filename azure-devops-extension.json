@@ -6,7 +6,7 @@
     "name": "Attachment Previewer",
     "description": "Provides attachment previews for all kinds of files.",
 
-    "public": false,
+    "public": true,
 
     "version": "0.0.0",
 
