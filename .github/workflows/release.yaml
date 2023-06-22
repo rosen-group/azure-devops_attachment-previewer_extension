@@ -65,5 +65,11 @@ jobs:
     - name: Package Extension
       run: npm run package-extension
 
+    - name: Publish Extension
+      run: npm run publish-extension
+      env:
+        AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+      if: github.event_name == 'push'
+
     - name: Publish Release
       run: gh release create $TAG_VERSION $PRERELEASE --title $TAG_VERSION --generate-notes --target $GITHUB_SHA *.vsix
