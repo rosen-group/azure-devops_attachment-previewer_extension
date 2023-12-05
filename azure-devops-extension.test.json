@@ -1,0 +1,50 @@
+{
+    "manifestVersion": 1,
+
+    "id": "attachment-previewer-test",
+
+    "name": "Attachment Previewer (Test)",
+    "description": "Provides attachment previews for all kinds of files.",
+
+    "public": false,
+
+    "version": "1.0.0",
+
+    "publisher": "rosen-group",
+
+    "categories": [
+        "Azure Pipelines"
+    ],
+
+    "targets": [
+        {
+            "id": "Microsoft.VisualStudio.Services"
+        }
+    ],
+
+    "icons": {
+        "default": "icon.png"
+    },
+
+    "content": {
+        "details": {
+            "path": "overview.md"
+        }
+    },
+
+    "files": [
+        {
+            "path": "dist",
+            "addressable": true
+        }
+    ],
+
+    "screenshots": [
+        {
+            "path": "screenshots/release-tests-no-selection.png"
+        },
+        {
+            "path": "screenshots/release-tests-mp4-preview.png"
+        }
+    ]
+}
