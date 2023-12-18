@@ -296,7 +296,8 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
             ? await testResultClient.getTestSubResultAttachments(project.name, configuration.runId, configuration.resultId, subResultId)
             : await testResultClient.getTestRunAttachments(project.name, configuration.runId);
 
-        const provider = new ArrayItemProvider(attachments);
+        const sorted = attachments.sort((a, b) => a.fileName.localeCompare(b.fileName));
+        const provider = new ArrayItemProvider(sorted);
         this.setState({ loaded: true, attachments: provider });
     }
 
