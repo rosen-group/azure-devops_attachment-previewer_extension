@@ -185,6 +185,40 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getAllByText(/no description available/i)).toHaveLength(2);
     });
 
+    test("should show listed attachments in sorted order", async () => {
+        // Arrange
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment3",
+                fileName: "filename-testz",
+            },
+            {
+                id: "attachment1",
+                fileName: "filename-testa",
+            },
+            {
+                id: "attachment2",
+                fileName: "filename-testf",
+            }
+        ]);
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename-/i)[0].textContent).toBe("filename-testa");
+        expect(screen.getAllByText(/filename-/i)[1].textContent).toBe("filename-testf");
+        expect(screen.getAllByText(/filename-/i)[2].textContent).toBe("filename-testz");
+    });
+
     test("should show listed attachment with comment", async () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
