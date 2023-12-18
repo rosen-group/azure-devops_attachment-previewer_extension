@@ -677,6 +677,81 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
     });
 
+    test("should select attachment and perform download", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+        global.window.open = jest.fn();
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+                url: "https://download1",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        fireEvent.click(screen.getByText(/download/i));
+
+        // Assert
+        expect(global.window.open).toHaveBeenCalledWith("https://download1", expect.any(String));
+    });
+
+    test("should select second attachment and perform download", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url2/");
+        global.window.open = jest.fn();
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+                url: "https://download1",
+            },
+            {
+                id: "attachment2",
+                fileName: "filename2.txt",
+                url: "https://download2",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename2/));
+
+        fireEvent.click(screen.getByText(/filename2/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        fireEvent.click(screen.getByText(/download/i));
+
+        // Assert
+        expect(global.window.open).toHaveBeenCalledWith("https://download2", expect.any(String));
+    });
+
     test("should set restriction for attachment content iframe by default", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");

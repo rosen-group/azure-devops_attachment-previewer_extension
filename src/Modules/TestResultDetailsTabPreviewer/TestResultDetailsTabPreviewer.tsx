@@ -17,6 +17,7 @@ import { TestAttachment, ResultDetails } from "azure-devops-extension-api/Test/T
 import { showRootComponent } from "../../Common";
 import { AzureDevOpsUtilities } from "./AzureDevOpsUtilities";
 import { TestResultsRestClient } from "azure-devops-extension-api/TestResults";
+import { IHeaderCommandBarItem } from "azure-devops-ui/HeaderCommandBar";
 
 /**
  * The interface containg the information of the currently selected information
@@ -33,6 +34,11 @@ interface ISelectedInformation {
      * The URL to the resource, it is embedded in a iframe.
      */
     readonly url: string;
+
+    /**
+     * The URL to download the resource.
+     */
+    readonly downloadUrl: string;
 
     /**
      * The MIME type of the resource, an empty string applies all restrictions,
@@ -117,6 +123,18 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
     };
 
     /**
+     * All available buttons shown for a selected previewed attachment.
+     */
+    private previewerHeaderBarItems: IHeaderCommandBarItem[] = [
+        {
+            id: "preview-download",
+            text: "Download",
+            onActivate: () => { this.onAttachmentDownloadClick() },
+            iconProps: { iconName: "Download" }
+        }
+    ];
+
+    /**
      * Initializes the component and sets a default state.
      */
     constructor(props: {}) {
@@ -180,14 +198,16 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
                         itemProvider={this.state.attachments}
                         renderRow={this.renderAttachmentRow}
                         selection={this.attachmentSelection}
-                        onSelect={(_, item) => this.onAttachmentClick(item.data.fileName, item.data.id)}
+                        onSelect={(_, item) => this.onAttachmentClick(item.data.fileName, item.data.id, item.data.url)}
                         maxWidth="250px" />
                 </div>
 
                 <div className="attachment flex-column">
                     {!this.state.lock ?
                         this.state.selected ?
-                            <Card className="bolt-card-white" titleProps={{ text: this.state.selected.title, ariaLevel: 3 }}>
+                            <Card className="bolt-card-white"
+                                titleProps={{ text: this.state.selected.title, ariaLevel: 3 }}
+                                headerCommandBarItems={this.previewerHeaderBarItems}>
                                 {this.state.selected.sandbox === null // only disable the sandbox if specifically configured
                                     ? <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url}></iframe>
                                     : <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url} sandbox={this.state.selected.sandbox}></iframe>
@@ -304,7 +324,7 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
     /**
      * Handles the selection of an attachment from the provided attachment list.
      */
-    private async onAttachmentClick(title: string, attachmentId: number): Promise<void> {
+    private async onAttachmentClick(title: string, attachmentId: number, downloadUrl: string): Promise<void> {
         // lock the UI, prevents the user from clicking on another attachment
         // during loading
         this.setState({ lock: true });
@@ -349,9 +369,18 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         // create the local URL to display
         const url = URL.createObjectURL(file);
 
-        const selected: ISelectedInformation = { title, url, sandbox };
+        const selected: ISelectedInformation = { title, url, downloadUrl, sandbox };
 
         this.setState({ selected: selected, lock: false });
+    }
+
+    /**
+     * Triggers a download for the currently selected attachment.
+     */
+    private onAttachmentDownloadClick(): void {
+        if (!this.state.selected) return;
+
+        window.open(this.state.selected.downloadUrl, "_blank");
     }
 
 }
