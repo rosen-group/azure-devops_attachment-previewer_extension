@@ -8,7 +8,7 @@ import React from "react";
 import TestResultDetailsTabPreviewerComponent from "../../Modules/TestResultDetailsTabPreviewer/TestResultDetailsTabPreviewer";
 
 import { mockGetProject, mockGetSubResultID, mockGetRunID, mockGetResultID } from "../../__mocks__/azure-devops-extension-sdk";
-import { mockGetTestSubResultAttachments, mockGetTestSubResultAttachmentContent, mockGetTestResultById } from "../../__mocks__/azure-devops-extension-api/TestResults";
+import { mockGetTestSubResultAttachments, mockGetTestSubResultAttachmentContent, mockGetTestResultById, mockGetTestRunAttachments } from "../../__mocks__/azure-devops-extension-api/TestResults";
 
 // related mocks for Azure DevOps are loaded automatically (implementations /src/__mocks__)
 
@@ -55,13 +55,14 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByText(/no attachments/i)).toBeDefined();
     });
 
-    test("should show no available attachments for invalid run", async () => {
+    test("should show no available attachments for run", async () => {
         // Arrange
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(null);
         mockGetSubResultID.mockReturnValue(0);
 
         mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestRunAttachments.mockResolvedValue([]);
 
         // Act
         render(<TestResultDetailsTabPreviewerComponent />);
@@ -70,6 +71,30 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
         // Assert
         expect(screen.getByText(/no attachments/i)).toBeDefined();
+    });
+
+    test("should list attachments for run", async () => {
+        // Arrange
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(null);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestRunAttachments.mockResolvedValue([
+            {
+                id: "attachment2",
+                fileName: "filename2",
+            }
+        ]);
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(mockGetTestRunAttachments).toHaveBeenCalledWith(expect.any(String), expect.any(Number));
+        expect(screen.getByText(/filename2/i)).toBeDefined();
     });
 
     test("should show list attachments of last sub result", async () => {

@@ -233,10 +233,17 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
 
     /**
      * Gets the run sub result id for the provided configuration, returns
-     * null if invalid.
+     * null if invalid and -1 if an overall run overview.
      */
     private async getSubResultId(configuration: { [key: string]: any }, project: IProjectInfo, testResultClient: TestResultsRestClient): Promise<number | null> {
         // for test run sections that aren't actually run results
+        if (configuration.runId && !configuration.resultId) {
+            const attachments = await testResultClient.getTestRunAttachments(project.name, configuration.runId);
+            if (attachments.length === 0) return null;
+
+            return -1;
+        }
+
         if (!configuration.resultId) {
             this.setState({ loaded: true, attachments: new ArrayItemProvider([]) });
 
@@ -283,7 +290,11 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
             return;
         }
 
-        const attachments = await testResultClient.getTestSubResultAttachments(project.name, configuration.runId, configuration.resultId, subResultId)
+        // if the subResultId is -1 then the attachments are of the run itself,
+        // otherwise they are of the test results themselves
+        const attachments = subResultId !== -1
+            ? await testResultClient.getTestSubResultAttachments(project.name, configuration.runId, configuration.resultId, subResultId)
+            : await testResultClient.getTestRunAttachments(project.name, configuration.runId);
 
         const provider = new ArrayItemProvider(attachments);
         this.setState({ loaded: true, attachments: provider });
@@ -313,9 +324,11 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         const subResultId = await this.getSubResultId(configuration, project, testResultClient);
         if (subResultId == null) return;
 
-        // if the attempt ID is not `-1` then the attempt attachments are
-        // fetched from the run itself
-        const content = await testResultClient.getTestSubResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId, subResultId);
+        // if the subResultId is -1 then the attachments are of the run itself,
+        // otherwise they are of the test results themselves
+        const content = subResultId !== -1
+            ? await testResultClient.getTestSubResultAttachmentContent(project.name, configuration.runId, configuration.resultId, attachmentId, subResultId)
+            : await testResultClient.getTestRunAttachmentContent(project.name, configuration.runId, attachmentId);
 
         const blob = new Blob([content]);
 
