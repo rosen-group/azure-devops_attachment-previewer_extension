@@ -1,4 +1,4 @@
-import { TextEncoder } from "util";
+import { TextDecoder, TextEncoder } from "util";
 
 import "@testing-library/jest-dom/extend-expect";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
@@ -335,9 +335,42 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByText(/comment2/i)).toBeDefined();
     });
 
-    test("should select attachment", async () => {
+    test("should select URL attachment", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.svg",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
+    });
+
+    test("should select text attachment", async () => {
+        // Arrange
+        Object.assign(global, { TextDecoder });
 
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
@@ -364,13 +397,50 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
         // Assert
         expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
-        expect(screen.getByTestId("iframe")).toBeDefined();
-        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
+        expect(screen.getByTestId("text-attachment")).toBeDefined();
+        expect(screen.getByTestId("text-attachment").querySelector("textarea")!.textContent).toEqual("content");
     });
 
-    test("should select second attachment", async () => {
+    test("should select second URL attachment", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url2/");
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.svg",
+            },
+            {
+                id: "attachment2",
+                fileName: "filename2.svg",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename2/));
+
+        fireEvent.click(screen.getByText(/filename2/i));
+
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url2/");
+    });
+
+    test("should select second text attachment", async () => {
+        // Arrange
+        Object.assign(global, { TextDecoder });
 
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
@@ -401,13 +471,13 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
         // Assert
         expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
-        expect(screen.getByTestId("iframe")).toBeDefined();
-        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url2/");
+        expect(screen.getByTestId("text-attachment")).toBeDefined();
+        expect(screen.getByTestId("text-attachment").querySelector("textarea")!.textContent).toEqual("content");
     });
 
-    test("should select attachment with unknown type", async () => {
+    test("should select attachment as text attachment with unknown type", async () => {
         // Arrange
-        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+        Object.assign(global, { TextDecoder });
 
         mockGetRunID.mockReturnValue(1);
         mockGetResultID.mockReturnValue(1);
@@ -434,11 +504,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
 
         // Assert
         expect(screen.getAllByText(/filename1/i)).toHaveLength(2);
-        expect(screen.getByTestId("iframe")).toBeDefined();
-        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
+        expect(screen.getByTestId("text-attachment")).toBeDefined();
+        expect(screen.getByTestId("text-attachment").querySelector("textarea")!.textContent).toEqual("content");
     });
 
-    test("should switch selected attachment", async () => {
+    test("should switch selected URL attachment", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn()
             .mockReturnValueOnce("https://url1/")
@@ -453,11 +523,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
-                fileName: "filename1.txt",
+                fileName: "filename1.svg",
             },
             {
                 id: "attachment2",
-                fileName: "filename2.txt",
+                fileName: "filename2.svg",
             }
         ]);
         mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
@@ -479,7 +549,130 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url2/");
     });
 
-    test("should lock during attachment load", async () => {
+    test("should switch selected text attachment", async () => {
+        // Arrange
+        Object.assign(global, { TextDecoder });
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+            },
+            {
+                id: "attachment2",
+                fileName: "filename2.txt",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent
+            .mockReturnValueOnce(new TextEncoder().encode("content1"))
+            .mockReturnValueOnce(new TextEncoder().encode("content2"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        fireEvent.click(screen.getByText(/filename2/i));
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
+        expect(screen.getByTestId("text-attachment")).toBeDefined();
+        expect(screen.getByTestId("text-attachment").querySelector("textarea")!.textContent).toEqual("content2");
+    });
+
+    test("should switch selected URL to text attachment", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+        Object.assign(global, { TextDecoder });
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.svg",
+            },
+            {
+                id: "attachment2",
+                fileName: "filename2.txt",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent
+            .mockReturnValueOnce(new TextEncoder().encode("content1"))
+            .mockReturnValueOnce(new TextEncoder().encode("content2"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        fireEvent.click(screen.getByText(/filename2/i));
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
+        expect(screen.getByTestId("text-attachment")).toBeDefined();
+        expect(screen.getByTestId("text-attachment").querySelector("textarea")!.textContent).toEqual("content2");
+    });
+
+    test("should switch selected text to URL attachment", async () => {
+        // Arrange
+        global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
+        Object.assign(global, { TextDecoder });
+
+        mockGetRunID.mockReturnValue(1);
+        mockGetResultID.mockReturnValue(1);
+        mockGetSubResultID.mockReturnValue(0);
+
+        mockGetProject.mockResolvedValue({ name: "project" });
+        mockGetTestResultById.mockResolvedValue({});
+        mockGetTestSubResultAttachments.mockResolvedValue([
+            {
+                id: "attachment1",
+                fileName: "filename1.txt",
+            },
+            {
+                id: "attachment2",
+                fileName: "filename2.svg",
+            }
+        ]);
+        mockGetTestSubResultAttachmentContent.mockReturnValueOnce(new TextEncoder().encode("content1"));
+
+        // Act
+        render(<TestResultDetailsTabPreviewerComponent />);
+
+        await waitFor(() => screen.getByText(/filename1/));
+
+        fireEvent.click(screen.getByText(/filename1/i));
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        fireEvent.click(screen.getByText(/filename2/i));
+        await new Promise((resolve => setTimeout(resolve, 0)));
+
+        // Assert
+        expect(screen.getAllByText(/filename2/i)).toHaveLength(2);
+        expect(screen.getByTestId("iframe")).toBeDefined();
+        expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
+    });
+
+    test("should lock during URL attachment load", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValueOnce("https://url1/");
 
@@ -492,7 +685,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
-                fileName: "filename1.txt",
+                fileName: "filename1.svg",
             }
         ]);
         mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
@@ -511,7 +704,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.queryByTestId("loading-attachment")).toBeNull();
     });
 
-    test("should lock during switch of selected attachment", async () => {
+    test("should lock during switch of selected URL attachment", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn()
             .mockReturnValueOnce("https://url1/")
@@ -526,11 +719,11 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
-                fileName: "filename1.txt",
+                fileName: "filename1.svg",
             },
             {
                 id: "attachment2",
-                fileName: "filename2.txt",
+                fileName: "filename2.svg",
             }
         ]);
         mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
@@ -553,7 +746,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(loading).toBeDefined();
     });
 
-    test("should select attachment of test with attempt", async () => {
+    test("should select URL attachment of test with attempt", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
@@ -566,7 +759,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
-                fileName: "filename1.txt",
+                fileName: "filename1.svg",
             }
         ]);
         mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
@@ -588,7 +781,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
     });
 
-    test("should select attachment of test with multiple attempts", async () => {
+    test("should select URL attachment of test with multiple attempts", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
@@ -611,7 +804,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
-                fileName: "filename1.txt",
+                fileName: "filename1.svg",
             }
         ]);
         mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
@@ -633,7 +826,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
     });
 
-    test("should select attachment content of parent test with attempt", async () => {
+    test("should select URL attachment content of parent test with attempt", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
 
@@ -655,7 +848,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
-                fileName: "filename1",
+                fileName: "filename1.svg",
             }
         ]);
         mockGetTestSubResultAttachmentContent.mockResolvedValue(new TextEncoder().encode("content"));
@@ -677,7 +870,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(screen.getByTestId("iframe").getAttribute("src")).toEqual("https://url1/");
     });
 
-    test("should select attachment and perform download", async () => {
+    test("should select URL attachment and perform download", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url1/");
         global.window.open = jest.fn();
@@ -691,7 +884,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
-                fileName: "filename1.txt",
+                fileName: "filename1.svg",
                 url: "https://download1",
             }
         ]);
@@ -712,7 +905,7 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         expect(global.window.open).toHaveBeenCalledWith("https://download1", expect.any(String));
     });
 
-    test("should select second attachment and perform download", async () => {
+    test("should select second URL attachment and perform download", async () => {
         // Arrange
         global.URL.createObjectURL = jest.fn().mockReturnValue("https://url2/");
         global.window.open = jest.fn();
@@ -726,12 +919,12 @@ describe("TestResultDetailsTabPreviewerComponent", () => {
         mockGetTestSubResultAttachments.mockResolvedValue([
             {
                 id: "attachment1",
-                fileName: "filename1.txt",
+                fileName: "filename1.svg",
                 url: "https://download1",
             },
             {
                 id: "attachment2",
-                fileName: "filename2.txt",
+                fileName: "filename2.svg",
                 url: "https://download2",
             }
         ]);
