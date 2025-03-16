@@ -10,6 +10,7 @@ import { Page } from "azure-devops-ui/Page";
 import { ScrollableList, IListItemDetails, ListSelection, ListItem } from "azure-devops-ui/List";
 import { Spinner, SpinnerSize } from "azure-devops-ui/Spinner";
 import { ZeroData } from "azure-devops-ui/ZeroData";
+import { TextField, TextFieldWidth } from "azure-devops-ui/TextField";
 
 import { IProjectPageService, CommonServiceIds, IProjectInfo } from "azure-devops-extension-api/Common";
 import { TestAttachment, ResultDetails } from "azure-devops-extension-api/Test/Test";
@@ -31,9 +32,14 @@ interface ISelectedInformation {
     readonly title: string;
 
     /**
-     * The URL to the resource, it is embedded in a iframe.
+     * The text being displayed for the selected resource, set in-place of URL.
      */
-    readonly url: string;
+    readonly text?: string;
+
+    /**
+     * The URL to the resource, it is embedded in a iframe, set in-place of URL.
+     */
+    readonly url?: string;
 
     /**
      * The URL to download the resource.
@@ -208,9 +214,18 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
                             <Card className="bolt-card-white"
                                 titleProps={{ text: this.state.selected.title, ariaLevel: 3 }}
                                 headerCommandBarItems={this.previewerHeaderBarItems}>
-                                {this.state.selected.sandbox === null // only disable the sandbox if specifically configured
-                                    ? <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url}></iframe>
-                                    : <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url} sandbox={this.state.selected.sandbox}></iframe>
+                                {this.state.selected.text ?
+                                    <div className="input" data-testid="text-attachment">
+                                        <TextField
+                                            multiline={true}
+                                            readOnly={true}
+                                            value={this.state.selected.text}
+                                            width={TextFieldWidth.auto} />
+                                    </div>
+                                    : // if no text is set then a local URL is being used
+                                    this.state.selected.sandbox === null // only disable the sandbox if specifically configured
+                                        ? <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url}></iframe>
+                                        : <iframe className="iframe" data-testid="iframe" frameBorder="false" src={this.state.selected.url} sandbox={this.state.selected.sandbox}></iframe>
                                 }
                             </Card>
                             :
@@ -219,7 +234,7 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
                                 secondaryText={
                                     <span>
                                         Please select an attachment to preview.
-                                  </span>
+                                    </span>
                                 }
                                 imagePath=""
                                 imageAltText="" />
@@ -366,12 +381,24 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         const whitelist = this.TYPE_SANDBOX[mime];
         const sandbox = (whitelist || whitelist === null) ? whitelist : "";
 
-        // create the local URL to display
-        const url = URL.createObjectURL(file);
+        // plain text needs to be displayed in a specific text-box, in order to
+        // make it readable for both the dark and light theme, otherwise when
+        // using an iFrame, the theme only respects the one configured for the
+        // browser but not what is being set Azure in Azure DevOps
+        if (mime === "text/plain") {
+            // not using blob.text() due to:
+            // https://github.com/jsdom/jsdom/issues/2555
+            const text = new TextDecoder().decode(content);
 
-        const selected: ISelectedInformation = { title, url, downloadUrl, sandbox };
+            const selected: ISelectedInformation = { title, text, downloadUrl, sandbox };
+            this.setState({ selected: selected, lock: false });
+        } else {
+            // create the local URL to display
+            const url = URL.createObjectURL(file);
 
-        this.setState({ selected: selected, lock: false });
+            const selected: ISelectedInformation = { title, url, downloadUrl, sandbox };
+            this.setState({ selected: selected, lock: false });
+        }
     }
 
     /**
