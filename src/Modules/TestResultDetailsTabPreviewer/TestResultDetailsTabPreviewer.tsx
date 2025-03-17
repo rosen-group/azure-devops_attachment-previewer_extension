@@ -111,7 +111,6 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         "ico": "image/vnd.microsoft.icon",
         "jpeg": "image/jpeg",
         "jpg": "image/jpeg",
-        "json": "application/json",
         "png": "image/png",
         "svg": "image/svg+xml",
     };
