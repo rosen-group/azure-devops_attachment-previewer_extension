@@ -113,6 +113,7 @@ export class TestResultDetailsTabPreviewerComponent extends React.Component<{}, 
         "jpg": "image/jpeg",
         "png": "image/png",
         "svg": "image/svg+xml",
+        "bmp": "image/bmp",
     };
 
     /**
